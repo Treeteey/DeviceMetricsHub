@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.api.device import router as device_router
 from app.db.database import Base, engine
 
@@ -21,5 +23,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Подключение статических файлов
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 # Подключение роутеров
-app.include_router(device_router, prefix="/api/v1", tags=["devices"]) 
+app.include_router(device_router, prefix="/api/v1", tags=["devices"])
+
+@app.get("/")
+async def read_root():
+    return FileResponse("app/static/index.html") 

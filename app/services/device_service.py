@@ -5,8 +5,14 @@ from datetime import datetime, timedelta
 import statistics
 from app.models.device import Device, DeviceStats, User
 from app.schemas.device import DeviceCreate, DeviceStatsCreate, UserCreate, StatsAnalysis
+from fastapi import HTTPException
 
 def create_device(db: Session, device: DeviceCreate) -> Device:
+    if device.user_id is not None:
+        user = db.query(User).filter(User.id == device.user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail=f"User with id {device.user_id} not found")
+    
     db_device = Device(**device.dict())
     db.add(db_device)
     db.commit()

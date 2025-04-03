@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Stats Service</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        input, button {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Device Stats Service</h1>
+
+    <div class="section">
+        <h2>Создать новое устройство</h2>
+        <input type="text" id="deviceId" placeholder="ID устройства">
+        <input type="number" id="userId" placeholder="ID пользователя (опционально)">
+        <button onclick="createDevice()">Создать устройство</button>
+        <div id="createDeviceResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Получить информацию об устройстве</h2>
+        <input type="text" id="getDeviceId" placeholder="ID устройства">
+        <button onclick="getDevice()">Получить устройство</button>
+        <div id="getDeviceResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Добавить статистику устройства</h2>
+        <input type="text" id="statsDeviceId" placeholder="ID устройства">
+        <input type="number" id="x" placeholder="X" step="0.1">
+        <input type="number" id="y" placeholder="Y" step="0.1">
+        <input type="number" id="z" placeholder="Z" step="0.1">
+        <button onclick="createDeviceStats()">Добавить статистику</button>
+        <div id="createStatsResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Получить статистику устройства</h2>
+        <input type="text" id="getStatsDeviceId" placeholder="ID устройства">
+        <button onclick="getDeviceStats()">Получить статистику</button>
+        <div id="getStatsResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api/v1';
+
+        async function createDevice() {
+            const deviceId = document.getElementById('deviceId').value;
+            const userId = document.getElementById('userId').value;
+            
+            const data = {
+                device_id: deviceId,
+                user_id: userId ? parseInt(userId) : null
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/devices/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                document.getElementById('createDeviceResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('createDeviceResult').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function getDevice() {
+            const deviceId = document.getElementById('getDeviceId').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/devices/${deviceId}`);
+                const result = await response.json();
+                document.getElementById('getDeviceResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('getDeviceResult').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function createDeviceStats() {
+            const deviceId = document.getElementById('statsDeviceId').value;
+            const x = parseFloat(document.getElementById('x').value);
+            const y = parseFloat(document.getElementById('y').value);
+            const z = parseFloat(document.getElementById('z').value);
+            
+            const data = { x, y, z };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/devices/${deviceId}/stats/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                document.getElementById('createStatsResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('createStatsResult').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function getDeviceStats() {
+            const deviceId = document.getElementById('getStatsDeviceId').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/devices/${deviceId}/stats/`);
+                const result = await response.json();
+                document.getElementById('getStatsResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('getStatsResult').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html> 
