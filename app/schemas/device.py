@@ -17,6 +17,9 @@ class DeviceStats(DeviceStatsBase):
 
     class Config:
         from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
 
 class DeviceBase(BaseModel):
     device_id: str
@@ -28,10 +31,13 @@ class DeviceCreate(DeviceBase):
 class Device(DeviceBase):
     id: int
     created_at: datetime
-    stats: List[DeviceStats] = []
+    stats: Optional[List[DeviceStats]] = None
 
     class Config:
         from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
 
 class UserBase(BaseModel):
     username: str
@@ -47,6 +53,9 @@ class User(UserBase):
 
     class Config:
         from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
 
 class StatsAnalysis(BaseModel):
     min_value: float

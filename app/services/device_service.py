@@ -61,4 +61,10 @@ def create_user(db: Session, user: UserCreate) -> User:
     return db_user
 
 def get_user_devices(db: Session, user_id: int) -> List[Device]:
-    return db.query(Device).filter(Device.user_id == user_id).all() 
+    return db.query(Device).filter(Device.user_id == user_id).all()
+
+def get_all_devices(db: Session) -> List[Device]:
+    return db.query(Device).all()
+
+def get_all_users(db: Session) -> List[User]:
+    return db.query(User).all() 

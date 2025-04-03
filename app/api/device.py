@@ -19,7 +19,9 @@ from app.services.device_service import (
     get_device_stats,
     analyze_stats,
     create_user,
-    get_user_devices
+    get_user_devices,
+    get_all_devices,
+    get_all_users
 )
 
 router = APIRouter()
@@ -27,6 +29,10 @@ router = APIRouter()
 @router.post("/devices/", response_model=Device)
 def create_device_endpoint(device: DeviceCreate, db: Session = Depends(get_db)):
     return create_device(db, device)
+
+@router.get("/devices/", response_model=List[Device])
+def read_all_devices(db: Session = Depends(get_db)):
+    return get_all_devices(db)
 
 @router.get("/devices/{device_id}", response_model=Device)
 def read_device(device_id: str, db: Session = Depends(get_db)):
@@ -71,4 +77,8 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.get("/users/{user_id}/devices/", response_model=List[Device])
 def read_user_devices(user_id: int, db: Session = Depends(get_db)):
-    return get_user_devices(db, user_id) 
+    return get_user_devices(db, user_id)
+
+@router.get("/users/", response_model=List[User])
+def read_all_users(db: Session = Depends(get_db)):
+    return get_all_users(db) 
