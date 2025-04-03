@@ -7,9 +7,35 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+            background-color: #f5f5f5;
+        }
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         .section {
             margin-bottom: 20px;
@@ -38,45 +64,187 @@
         button:hover {
             background-color: #45a049;
         }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .links {
+            display: flex;
+            gap: 20px;
+        }
+        .link-card {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .link-card a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .link-card a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <h1>Device Stats Service</h1>
 
-    <div class="section">
-        <h2>Создать новое устройство</h2>
-        <input type="text" id="deviceId" placeholder="ID устройства">
-        <input type="number" id="userId" placeholder="ID пользователя (опционально)">
-        <button onclick="createDevice()">Создать устройство</button>
-        <div id="createDeviceResult" class="result"></div>
+    <div class="tabs">
+        <div class="tab active" onclick="openTab(event, 'devices')">Устройства</div>
+        <div class="tab" onclick="openTab(event, 'stats')">Статистика</div>
+        <div class="tab" onclick="openTab(event, 'users')">Пользователи</div>
+        <div class="tab" onclick="openTab(event, 'docs')">Документация</div>
     </div>
 
-    <div class="section">
-        <h2>Получить информацию об устройстве</h2>
-        <input type="text" id="getDeviceId" placeholder="ID устройства">
-        <button onclick="getDevice()">Получить устройство</button>
-        <div id="getDeviceResult" class="result"></div>
+    <div id="devices" class="tab-content active">
+        <div class="section">
+            <h2>Создать новое устройство</h2>
+            <div class="form-group">
+                <label for="deviceId">ID устройства:</label>
+                <input type="text" id="deviceId" placeholder="Введите ID устройства">
+            </div>
+            <div class="form-group">
+                <label for="userId">ID пользователя (опционально):</label>
+                <input type="number" id="userId" placeholder="Введите ID пользователя">
+            </div>
+            <button onclick="createDevice()">Создать устройство</button>
+            <div id="createDeviceResult" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>Получить информацию об устройстве</h2>
+            <div class="form-group">
+                <label for="getDeviceId">ID устройства:</label>
+                <input type="text" id="getDeviceId" placeholder="Введите ID устройства">
+            </div>
+            <button onclick="getDevice()">Получить устройство</button>
+            <div id="getDeviceResult" class="result"></div>
+        </div>
     </div>
 
-    <div class="section">
-        <h2>Добавить статистику устройства</h2>
-        <input type="text" id="statsDeviceId" placeholder="ID устройства">
-        <input type="number" id="x" placeholder="X" step="0.1">
-        <input type="number" id="y" placeholder="Y" step="0.1">
-        <input type="number" id="z" placeholder="Z" step="0.1">
-        <button onclick="createDeviceStats()">Добавить статистику</button>
-        <div id="createStatsResult" class="result"></div>
+    <div id="stats" class="tab-content">
+        <div class="section">
+            <h2>Добавить статистику устройства</h2>
+            <div class="form-group">
+                <label for="statsDeviceId">ID устройства:</label>
+                <input type="text" id="statsDeviceId" placeholder="Введите ID устройства">
+            </div>
+            <div class="form-group">
+                <label for="x">X:</label>
+                <input type="number" id="x" placeholder="Введите значение X" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="y">Y:</label>
+                <input type="number" id="y" placeholder="Введите значение Y" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="z">Z:</label>
+                <input type="number" id="z" placeholder="Введите значение Z" step="0.1">
+            </div>
+            <button onclick="createDeviceStats()">Добавить статистику</button>
+            <div id="createStatsResult" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>Получить статистику устройства</h2>
+            <div class="form-group">
+                <label for="getStatsDeviceId">ID устройства:</label>
+                <input type="text" id="getStatsDeviceId" placeholder="Введите ID устройства">
+            </div>
+            <div class="form-group">
+                <label for="startTime">Начальное время:</label>
+                <input type="datetime-local" id="startTime">
+            </div>
+            <div class="form-group">
+                <label for="endTime">Конечное время:</label>
+                <input type="datetime-local" id="endTime">
+            </div>
+            <button onclick="getDeviceStats()">Получить статистику</button>
+            <div id="getStatsResult" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>Анализ статистики</h2>
+            <div class="form-group">
+                <label for="analysisDeviceId">ID устройства:</label>
+                <input type="text" id="analysisDeviceId" placeholder="Введите ID устройства">
+            </div>
+            <div class="form-group">
+                <label for="field">Поле для анализа:</label>
+                <select id="field">
+                    <option value="x">X</option>
+                    <option value="y">Y</option>
+                    <option value="z">Z</option>
+                </select>
+            </div>
+            <button onclick="analyzeDeviceStats()">Анализировать</button>
+            <div id="analysisResult" class="result"></div>
+        </div>
     </div>
 
-    <div class="section">
-        <h2>Получить статистику устройства</h2>
-        <input type="text" id="getStatsDeviceId" placeholder="ID устройства">
-        <button onclick="getDeviceStats()">Получить статистику</button>
-        <div id="getStatsResult" class="result"></div>
+    <div id="users" class="tab-content">
+        <div class="section">
+            <h2>Создать нового пользователя</h2>
+            <div class="form-group">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" placeholder="Введите имя пользователя">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Введите email">
+            </div>
+            <button onclick="createUser()">Создать пользователя</button>
+            <div id="createUserResult" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>Получить устройства пользователя</h2>
+            <div class="form-group">
+                <label for="getUserDevicesId">ID пользователя:</label>
+                <input type="number" id="getUserDevicesId" placeholder="Введите ID пользователя">
+            </div>
+            <button onclick="getUserDevices()">Получить устройства</button>
+            <div id="getUserDevicesResult" class="result"></div>
+        </div>
+    </div>
+
+    <div id="docs" class="tab-content">
+        <h2>Документация API</h2>
+        <div class="links">
+            <div class="link-card">
+                <h3>Swagger UI</h3>
+                <p>Интерактивная документация API</p>
+                <a href="/docs" target="_blank">Открыть Swagger UI</a>
+            </div>
+            <div class="link-card">
+                <h3>ReDoc</h3>
+                <p>Альтернативная документация API</p>
+                <a href="/redoc" target="_blank">Открыть ReDoc</a>
+            </div>
+        </div>
     </div>
 
     <script>
         const API_BASE_URL = '/api/v1';
+
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let content of tabContents) {
+                content.classList.remove("active");
+            }
+
+            const tabs = document.getElementsByClassName("tab");
+            for (let tab of tabs) {
+                tab.classList.remove("active");
+            }
+
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
 
         async function createDevice() {
             const deviceId = document.getElementById('deviceId').value;
@@ -104,7 +272,6 @@
 
         async function getDevice() {
             const deviceId = document.getElementById('getDeviceId').value;
-            
             try {
                 const response = await fetch(`${API_BASE_URL}/devices/${deviceId}`);
                 const result = await response.json();
@@ -139,13 +306,65 @@
 
         async function getDeviceStats() {
             const deviceId = document.getElementById('getStatsDeviceId').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
             
+            let url = `${API_BASE_URL}/devices/${deviceId}/stats/`;
+            if (startTime && endTime) {
+                url += `?start_time=${startTime}&end_time=${endTime}`;
+            }
+
             try {
-                const response = await fetch(`${API_BASE_URL}/devices/${deviceId}/stats/`);
+                const response = await fetch(url);
                 const result = await response.json();
                 document.getElementById('getStatsResult').textContent = JSON.stringify(result, null, 2);
             } catch (error) {
                 document.getElementById('getStatsResult').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function analyzeDeviceStats() {
+            const deviceId = document.getElementById('analysisDeviceId').value;
+            const field = document.getElementById('field').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/devices/${deviceId}/stats/analysis/${field}`);
+                const result = await response.json();
+                document.getElementById('analysisResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('analysisResult').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function createUser() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            
+            const data = { username, email };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                document.getElementById('createUserResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('createUserResult').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function getUserDevices() {
+            const userId = document.getElementById('getUserDevicesId').value;
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${userId}/devices/`);
+                const result = await response.json();
+                document.getElementById('getUserDevicesResult').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('getUserDevicesResult').textContent = `Ошибка: ${error.message}`;
             }
         }
     </script>
