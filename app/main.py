@@ -4,6 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.api.device import router as device_router
 from app.db.database import Base, engine
+from dotenv import load_dotenv
+import os
+
+# Загрузка переменных окружения
+load_dotenv()
 
 # Создание таблиц в базе данных
 Base.metadata.create_all(bind=engine)
