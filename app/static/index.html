@@ -271,14 +271,6 @@
                     <input type="text" id="analysisDeviceId" placeholder="Введите ID устройства">
                 </div>
                 <div class="form-cell">
-                    <label for="field">Поле для анализа:</label>
-                    <select id="field">
-                        <option value="x">X</option>
-                        <option value="y">Y</option>
-                        <option value="z">Z</option>
-                    </select>
-                </div>
-                <div class="form-cell">
                     <label for="analysisStartTime">Начальное время:</label>
                     <input type="datetime-local" id="analysisStartTime">
                 </div>
@@ -296,7 +288,9 @@
                     <thead>
                         <tr>
                             <th>Параметр</th>
-                            <th>Значение</th>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Z</th>
                         </tr>
                     </thead>
                     <tbody id="analysisTableBody">
@@ -512,60 +506,58 @@
 
         async function analyzeDeviceStats() {
             const deviceId = document.getElementById('analysisDeviceId').value;
-            const field = document.getElementById('field').value;
             const startTime = document.getElementById('analysisStartTime').value;
             const endTime = document.getElementById('analysisEndTime').value;
             
-            let url = `${API_BASE_URL}/devices/${deviceId}/stats/analysis/${field}`;
-            if (startTime && endTime) {
-                url += `?start_time=${startTime}&end_time=${endTime}`;
-            }
-            
             try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                // Получаем анализ для всех трех параметров
+                const fields = ['x', 'y', 'z'];
+                const results = {};
+                
+                for (const field of fields) {
+                    let url = `${API_BASE_URL}/devices/${deviceId}/stats/analysis/${field}`;
+                    if (startTime && endTime) {
+                        url += `?start_time=${startTime}&end_time=${endTime}`;
+                    }
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    results[field] = await response.json();
                 }
-                const data = await response.json();
                 
                 // Отображаем результат в текстовом поле
-                document.getElementById('analysisResult').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('analysisResult').textContent = JSON.stringify(results, null, 2);
                 
                 // Заполняем таблицу
                 const tbody = document.getElementById('analysisTableBody');
                 tbody.innerHTML = '';
                 
-                if (data) {
-                    const rows = [
-                        { label: 'Минимальное значение', value: data.min_value },
-                        { label: 'Максимальное значение', value: data.max_value },
-                        { label: 'Количество записей', value: data.count },
-                        { label: 'Сумма значений', value: data.sum_value },
-                        { label: 'Медиана', value: data.median }
-                    ];
-                    
-                    rows.forEach(row => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${row.label}</td>
-                            <td>${row.value}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                } else {
-                    console.error('Ответ не содержит данных:', data);
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="2" style="color: red;">Ошибка: неверный формат данных</td>
-                        </tr>
+                const rows = [
+                    { label: 'Минимальное значение', key: 'min_value' },
+                    { label: 'Максимальное значение', key: 'max_value' },
+                    { label: 'Количество записей', key: 'count' },
+                    { label: 'Сумма значений', key: 'sum_value' },
+                    { label: 'Медиана', key: 'median' }
+                ];
+                
+                rows.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.label}</td>
+                        <td>${results.x ? results.x[row.key] : 'Н/Д'}</td>
+                        <td>${results.y ? results.y[row.key] : 'Н/Д'}</td>
+                        <td>${results.z ? results.z[row.key] : 'Н/Д'}</td>
                     `;
-                }
+                    tbody.appendChild(tr);
+                });
             } catch (error) {
                 console.error('Ошибка при анализе статистики:', error);
                 document.getElementById('analysisResult').textContent = `Ошибка: ${error.message}`;
                 document.getElementById('analysisTableBody').innerHTML = `
                     <tr>
-                        <td colspan="2" style="color: red;">Ошибка при загрузке данных: ${error.message}</td>
+                        <td colspan="4" style="color: red;">Ошибка при загрузке данных: ${error.message}</td>
                     </tr>
                 `;
             }
