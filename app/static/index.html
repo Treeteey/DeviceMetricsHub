@@ -434,7 +434,7 @@
 
         async function getAllDevices() {
             try {
-                const response = await fetch(`${API_BASE_URL}/devices/`);
+                const response = await fetch(`${API_BASE_URL}/devices/all`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

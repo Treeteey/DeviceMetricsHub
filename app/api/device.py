@@ -34,6 +34,10 @@ def create_device_endpoint(device: DeviceCreate, db: Session = Depends(get_db)):
 def read_all_devices(db: Session = Depends(get_db)):
     return get_all_devices(db)
 
+@router.get("/devices/all", response_model=List[Device])
+def read_all_devices_alt(db: Session = Depends(get_db)):
+    return get_all_devices(db)
+
 @router.get("/devices/{device_id}", response_model=Device)
 def read_device(device_id: str, db: Session = Depends(get_db)):
     db_device = get_device(db, device_id)
