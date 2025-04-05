@@ -12,7 +12,7 @@ from app.schemas.device import (
     User,
     StatsAnalysis
 )
-from app.models.device import DeviceStats as DeviceStatsModel
+from app.models.device import Device, DeviceStats as DeviceStatsModel, User
 from app.services.device_service import (
     create_device,
     get_device,

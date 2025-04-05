@@ -70,9 +70,27 @@
         .form-group {
             margin-bottom: 10px;
         }
-        .form-group label {
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .form-cell {
+            padding: 5px;
+            flex: 1;
+        }
+        .form-cell label {
             display: block;
             margin-bottom: 5px;
+        }
+        .form-cell input, .form-cell select {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form-cell.button-cell {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: flex-end;
         }
         .links {
             display: flex;
@@ -133,25 +151,33 @@
     <div id="devices" class="tab-content active">
         <div class="section">
             <h2>Создать новое устройство</h2>
-            <div class="form-group">
-                <label for="deviceId">ID устройства:</label>
-                <input type="text" id="deviceId" placeholder="Введите ID устройства">
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="deviceId">ID устройства:</label>
+                    <input type="text" id="deviceId" placeholder="Введите ID устройства">
+                </div>
+                <div class="form-cell">
+                    <label for="userId">ID пользователя (опционально):</label>
+                    <input type="number" id="userId" placeholder="Введите ID пользователя">
+                </div>
+                <div class="form-cell button-cell">
+                    <button onclick="createDevice()">Создать устройство</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="userId">ID пользователя (опционально):</label>
-                <input type="number" id="userId" placeholder="Введите ID пользователя">
-            </div>
-            <button onclick="createDevice()">Создать устройство</button>
             <div id="createDeviceResult" class="result"></div>
         </div>
 
         <div class="section">
             <h2>Получить информацию об устройстве</h2>
-            <div class="form-group">
-                <label for="getDeviceId">ID устройства:</label>
-                <input type="text" id="getDeviceId" placeholder="Введите ID устройства">
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="getDeviceId">ID устройства:</label>
+                    <input type="text" id="getDeviceId" placeholder="Введите ID устройства">
+                </div>
+                <div class="form-cell button-cell">
+                    <button onclick="getDevice()">Получить устройство</button>
+                </div>
             </div>
-            <button onclick="getDevice()">Получить устройство</button>
             <div id="getDeviceResult" class="result"></div>
         </div>
 
@@ -177,85 +203,139 @@
     <div id="stats" class="tab-content">
         <div class="section">
             <h2>Добавить статистику устройства</h2>
-            <div class="form-group">
-                <label for="statsDeviceId">ID устройства:</label>
-                <input type="text" id="statsDeviceId" placeholder="Введите ID устройства">
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="statsDeviceId">ID устройства:</label>
+                    <input type="text" id="statsDeviceId" placeholder="Введите ID устройства">
+                </div>
+                <div class="form-cell">
+                    <label for="x">X:</label>
+                    <input type="number" id="x" placeholder="Введите значение X" step="0.1">
+                </div>
+                <div class="form-cell">
+                    <label for="y">Y:</label>
+                    <input type="number" id="y" placeholder="Введите значение Y" step="0.1">
+                </div>
+                <div class="form-cell">
+                    <label for="z">Z:</label>
+                    <input type="number" id="z" placeholder="Введите значение Z" step="0.1">
+                </div>
+                <div class="form-cell button-cell">
+                    <button onclick="createDeviceStats()">Добавить статистику</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="x">X:</label>
-                <input type="number" id="x" placeholder="Введите значение X" step="0.1">
-            </div>
-            <div class="form-group">
-                <label for="y">Y:</label>
-                <input type="number" id="y" placeholder="Введите значение Y" step="0.1">
-            </div>
-            <div class="form-group">
-                <label for="z">Z:</label>
-                <input type="number" id="z" placeholder="Введите значение Z" step="0.1">
-            </div>
-            <button onclick="createDeviceStats()">Добавить статистику</button>
             <div id="createStatsResult" class="result"></div>
         </div>
 
         <div class="section">
             <h2>Получить статистику устройства</h2>
-            <div class="form-group">
-                <label for="getStatsDeviceId">ID устройства:</label>
-                <input type="text" id="getStatsDeviceId" placeholder="Введите ID устройства">
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="getStatsDeviceId">ID устройства:</label>
+                    <input type="text" id="getStatsDeviceId" placeholder="Введите ID устройства">
+                </div>
+                <div class="form-cell">
+                    <label for="startTime">Начальное время:</label>
+                    <input type="datetime-local" id="startTime">
+                </div>
+                <div class="form-cell">
+                    <label for="endTime">Конечное время:</label>
+                    <input type="datetime-local" id="endTime">
+                </div>
+                <div class="form-cell button-cell">
+                    <button onclick="getDeviceStats()">Получить статистику</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="startTime">Начальное время:</label>
-                <input type="datetime-local" id="startTime">
-            </div>
-            <div class="form-group">
-                <label for="endTime">Конечное время:</label>
-                <input type="datetime-local" id="endTime">
-            </div>
-            <button onclick="getDeviceStats()">Получить статистику</button>
             <div id="getStatsResult" class="result"></div>
+            <div class="table-container">
+                <table id="deviceStatsTable">
+                    <thead>
+                        <tr>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Z</th>
+                            <th>Временная метка</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deviceStatsTableBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="section">
             <h2>Анализ статистики</h2>
-            <div class="form-group">
-                <label for="analysisDeviceId">ID устройства:</label>
-                <input type="text" id="analysisDeviceId" placeholder="Введите ID устройства">
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="analysisDeviceId">ID устройства:</label>
+                    <input type="text" id="analysisDeviceId" placeholder="Введите ID устройства">
+                </div>
+                <div class="form-cell">
+                    <label for="field">Поле для анализа:</label>
+                    <select id="field">
+                        <option value="x">X</option>
+                        <option value="y">Y</option>
+                        <option value="z">Z</option>
+                    </select>
+                </div>
+                <div class="form-cell">
+                    <label for="analysisStartTime">Начальное время:</label>
+                    <input type="datetime-local" id="analysisStartTime">
+                </div>
+                <div class="form-cell">
+                    <label for="analysisEndTime">Конечное время:</label>
+                    <input type="datetime-local" id="analysisEndTime">
+                </div>
+                <div class="form-cell button-cell">
+                    <button onclick="analyzeDeviceStats()">Анализировать</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="field">Поле для анализа:</label>
-                <select id="field">
-                    <option value="x">X</option>
-                    <option value="y">Y</option>
-                    <option value="z">Z</option>
-                </select>
-            </div>
-            <button onclick="analyzeDeviceStats()">Анализировать</button>
             <div id="analysisResult" class="result"></div>
+            <div class="table-container">
+                <table id="analysisTable">
+                    <thead>
+                        <tr>
+                            <th>Параметр</th>
+                            <th>Значение</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analysisTableBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <div id="users" class="tab-content">
         <div class="section">
             <h2>Создать нового пользователя</h2>
-            <div class="form-group">
-                <label for="username">Имя пользователя:</label>
-                <input type="text" id="username" placeholder="Введите имя пользователя">
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="username">Имя пользователя:</label>
+                    <input type="text" id="username" placeholder="Введите имя пользователя">
+                </div>
+                <div class="form-cell">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" placeholder="Введите email">
+                </div>
+                <div class="form-cell button-cell">
+                    <button onclick="createUser()">Создать пользователя</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" placeholder="Введите email">
-            </div>
-            <button onclick="createUser()">Создать пользователя</button>
             <div id="createUserResult" class="result"></div>
         </div>
 
         <div class="section">
             <h2>Получить устройства пользователя</h2>
-            <div class="form-group">
-                <label for="getUserDevicesId">ID пользователя:</label>
-                <input type="number" id="getUserDevicesId" placeholder="Введите ID пользователя">
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="getUserDevicesId">ID пользователя:</label>
+                    <input type="number" id="getUserDevicesId" placeholder="Введите ID пользователя">
+                </div>
+                <div class="form-cell button-cell">
+                    <button onclick="getUserDevices()">Получить устройства</button>
+                </div>
             </div>
-            <button onclick="getUserDevices()">Получить устройства</button>
             <div id="getUserDevicesResult" class="result"></div>
         </div>
 
@@ -380,23 +460,114 @@
 
             try {
                 const response = await fetch(url);
-                const result = await response.json();
-                document.getElementById('getStatsResult').textContent = JSON.stringify(result, null, 2);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Отображаем результат в текстовом поле
+                document.getElementById('getStatsResult').textContent = JSON.stringify(data, null, 2);
+                
+                // Заполняем таблицу
+                const tbody = document.getElementById('deviceStatsTableBody');
+                tbody.innerHTML = '';
+                
+                if (Array.isArray(data)) {
+                    if (data.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" style="text-align: center;">Нет данных за указанный период</td>
+                            </tr>
+                        `;
+                    } else {
+                        data.forEach(stat => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${stat.x}</td>
+                                <td>${stat.y}</td>
+                                <td>${stat.z}</td>
+                                <td>${new Date(stat.timestamp).toLocaleString()}</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                } else {
+                    console.error('Ответ не является массивом:', data);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="color: red;">Ошибка: неверный формат данных</td>
+                        </tr>
+                    `;
+                }
             } catch (error) {
+                console.error('Ошибка при получении статистики устройства:', error);
                 document.getElementById('getStatsResult').textContent = `Ошибка: ${error.message}`;
+                document.getElementById('deviceStatsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="4" style="color: red;">Ошибка при загрузке данных: ${error.message}</td>
+                    </tr>
+                `;
             }
         }
 
         async function analyzeDeviceStats() {
             const deviceId = document.getElementById('analysisDeviceId').value;
             const field = document.getElementById('field').value;
+            const startTime = document.getElementById('analysisStartTime').value;
+            const endTime = document.getElementById('analysisEndTime').value;
+            
+            let url = `${API_BASE_URL}/devices/${deviceId}/stats/analysis/${field}`;
+            if (startTime && endTime) {
+                url += `?start_time=${startTime}&end_time=${endTime}`;
+            }
             
             try {
-                const response = await fetch(`${API_BASE_URL}/devices/${deviceId}/stats/analysis/${field}`);
-                const result = await response.json();
-                document.getElementById('analysisResult').textContent = JSON.stringify(result, null, 2);
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Отображаем результат в текстовом поле
+                document.getElementById('analysisResult').textContent = JSON.stringify(data, null, 2);
+                
+                // Заполняем таблицу
+                const tbody = document.getElementById('analysisTableBody');
+                tbody.innerHTML = '';
+                
+                if (data) {
+                    const rows = [
+                        { label: 'Минимальное значение', value: data.min_value },
+                        { label: 'Максимальное значение', value: data.max_value },
+                        { label: 'Количество записей', value: data.count },
+                        { label: 'Сумма значений', value: data.sum_value },
+                        { label: 'Медиана', value: data.median }
+                    ];
+                    
+                    rows.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${row.label}</td>
+                            <td>${row.value}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    console.error('Ответ не содержит данных:', data);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="2" style="color: red;">Ошибка: неверный формат данных</td>
+                        </tr>
+                    `;
+                }
             } catch (error) {
+                console.error('Ошибка при анализе статистики:', error);
                 document.getElementById('analysisResult').textContent = `Ошибка: ${error.message}`;
+                document.getElementById('analysisTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="2" style="color: red;">Ошибка при загрузке данных: ${error.message}</td>
+                    </tr>
+                `;
             }
         }
 
