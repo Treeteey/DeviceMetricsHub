@@ -133,8 +133,24 @@
             margin-top: 20px;
             overflow-x: auto;
         }
+        .table-container.scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+        }
         .refresh-button {
             margin-bottom: 10px;
+        }
+        .success-message {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+        .success-icon {
+            color: #4CAF50;
+            font-size: 24px;
+            margin-right: 5px;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -165,6 +181,9 @@
                 </div>
             </div>
             <div id="createDeviceResult" class="result"></div>
+            <div id="createDeviceSuccess" class="success-message">
+                <span class="success-icon">✓</span> Устройство успешно создано!
+            </div>
         </div>
 
         <div class="section">
@@ -178,7 +197,21 @@
                     <button onclick="getDevice()">Получить устройство</button>
                 </div>
             </div>
-            <div id="getDeviceResult" class="result"></div>
+            <div class="table-container">
+                <table id="deviceInfoTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ID устройства</th>
+                            <th>ID пользователя</th>
+                            <th>Дата создания</th>
+                            <th>Количество статистик</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deviceInfoTableBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="section">
@@ -225,6 +258,9 @@
                 </div>
             </div>
             <div id="createStatsResult" class="result"></div>
+            <div id="createStatsSuccess" class="success-message">
+                <span class="success-icon">✓</span> Статистика успешно добавлена!
+            </div>
         </div>
 
         <div class="section">
@@ -246,8 +282,7 @@
                     <button onclick="getDeviceStats()">Получить статистику</button>
                 </div>
             </div>
-            <div id="getStatsResult" class="result"></div>
-            <div class="table-container">
+            <div class="table-container scrollable">
                 <table id="deviceStatsTable">
                     <thead>
                         <tr>
@@ -282,7 +317,6 @@
                     <button onclick="analyzeDeviceStats()">Анализировать</button>
                 </div>
             </div>
-            <div id="analysisResult" class="result"></div>
             <div class="table-container">
                 <table id="analysisTable">
                     <thead>
@@ -317,6 +351,9 @@
                 </div>
             </div>
             <div id="createUserResult" class="result"></div>
+            <div id="createUserSuccess" class="success-message">
+                <span class="success-icon">✓</span> Пользователь успешно создан!
+            </div>
         </div>
 
         <div class="section">
@@ -330,7 +367,19 @@
                     <button onclick="getUserDevices()">Получить устройства</button>
                 </div>
             </div>
-            <div id="getUserDevicesResult" class="result"></div>
+            <div class="table-container">
+                <table id="userDevicesTable">
+                    <thead>
+                        <tr>
+                            <th>ID устройства</th>
+                            <th>ID пользователя</th>
+                            <th>Дата создания</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userDevicesTableBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="section">
@@ -403,6 +452,13 @@
                 });
                 const result = await response.json();
                 document.getElementById('createDeviceResult').textContent = JSON.stringify(result, null, 2);
+                
+                // Показываем сообщение об успехе
+                const successElement = document.getElementById('createDeviceSuccess');
+                successElement.style.display = 'block';
+                setTimeout(() => {
+                    successElement.style.display = 'none';
+                }, 2000);
             } catch (error) {
                 document.getElementById('createDeviceResult').textContent = `Ошибка: ${error.message}`;
             }
@@ -412,10 +468,39 @@
             const deviceId = document.getElementById('getDeviceId').value;
             try {
                 const response = await fetch(`${API_BASE_URL}/devices/${deviceId}`);
-                const result = await response.json();
-                document.getElementById('getDeviceResult').textContent = JSON.stringify(result, null, 2);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const device = await response.json();
+                
+                // Получаем количество статистик для устройства
+                const statsResponse = await fetch(`${API_BASE_URL}/devices/${deviceId}/stats/`);
+                if (!statsResponse.ok) {
+                    throw new Error(`HTTP error! status: ${statsResponse.status}`);
+                }
+                const stats = await statsResponse.json();
+                const statsCount = Array.isArray(stats) ? stats.length : 0;
+                
+                // Заполняем таблицу
+                const tbody = document.getElementById('deviceInfoTableBody');
+                tbody.innerHTML = '';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.id || 'Н/Д'}</td>
+                    <td>${device.device_id}</td>
+                    <td>${device.user_id || 'Не назначен'}</td>
+                    <td>${new Date(device.created_at).toLocaleString()}</td>
+                    <td>${statsCount}</td>
+                `;
+                tbody.appendChild(row);
             } catch (error) {
-                document.getElementById('getDeviceResult').textContent = `Ошибка: ${error.message}`;
+                console.error('Ошибка при получении информации об устройстве:', error);
+                document.getElementById('deviceInfoTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="5" style="color: red;">Ошибка при загрузке данных: ${error.message}</td>
+                    </tr>
+                `;
             }
         }
 
@@ -437,6 +522,13 @@
                 });
                 const result = await response.json();
                 document.getElementById('createStatsResult').textContent = JSON.stringify(result, null, 2);
+                
+                // Показываем сообщение об успехе
+                const successElement = document.getElementById('createStatsSuccess');
+                successElement.style.display = 'block';
+                setTimeout(() => {
+                    successElement.style.display = 'none';
+                }, 2000);
             } catch (error) {
                 document.getElementById('createStatsResult').textContent = `Ошибка: ${error.message}`;
             }
@@ -451,16 +543,13 @@
             if (startTime && endTime) {
                 url += `?start_time=${startTime}&end_time=${endTime}`;
             }
-
+            
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                
-                // Отображаем результат в текстовом поле
-                document.getElementById('getStatsResult').textContent = JSON.stringify(data, null, 2);
                 
                 // Заполняем таблицу
                 const tbody = document.getElementById('deviceStatsTableBody');
@@ -495,7 +584,6 @@
                 }
             } catch (error) {
                 console.error('Ошибка при получении статистики устройства:', error);
-                document.getElementById('getStatsResult').textContent = `Ошибка: ${error.message}`;
                 document.getElementById('deviceStatsTableBody').innerHTML = `
                     <tr>
                         <td colspan="4" style="color: red;">Ошибка при загрузке данных: ${error.message}</td>
@@ -527,9 +615,6 @@
                     results[field] = await response.json();
                 }
                 
-                // Отображаем результат в текстовом поле
-                document.getElementById('analysisResult').textContent = JSON.stringify(results, null, 2);
-                
                 // Заполняем таблицу
                 const tbody = document.getElementById('analysisTableBody');
                 tbody.innerHTML = '';
@@ -554,7 +639,6 @@
                 });
             } catch (error) {
                 console.error('Ошибка при анализе статистики:', error);
-                document.getElementById('analysisResult').textContent = `Ошибка: ${error.message}`;
                 document.getElementById('analysisTableBody').innerHTML = `
                     <tr>
                         <td colspan="4" style="color: red;">Ошибка при загрузке данных: ${error.message}</td>
@@ -579,6 +663,13 @@
                 });
                 const result = await response.json();
                 document.getElementById('createUserResult').textContent = JSON.stringify(result, null, 2);
+                
+                // Показываем сообщение об успехе
+                const successElement = document.getElementById('createUserSuccess');
+                successElement.style.display = 'block';
+                setTimeout(() => {
+                    successElement.style.display = 'none';
+                }, 2000);
             } catch (error) {
                 document.getElementById('createUserResult').textContent = `Ошибка: ${error.message}`;
             }
@@ -588,10 +679,48 @@
             const userId = document.getElementById('getUserDevicesId').value;
             try {
                 const response = await fetch(`${API_BASE_URL}/users/${userId}/devices/`);
-                const result = await response.json();
-                document.getElementById('getUserDevicesResult').textContent = JSON.stringify(result, null, 2);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Заполняем таблицу
+                const tbody = document.getElementById('userDevicesTableBody');
+                tbody.innerHTML = '';
+                
+                if (Array.isArray(data)) {
+                    if (data.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="3" style="text-align: center;">У пользователя нет устройств</td>
+                            </tr>
+                        `;
+                    } else {
+                        data.forEach(device => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${device.device_id}</td>
+                                <td>${device.user_id || 'Не назначен'}</td>
+                                <td>${new Date(device.created_at).toLocaleString()}</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                } else {
+                    console.error('Ответ не является массивом:', data);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="3" style="color: red;">Ошибка: неверный формат данных</td>
+                        </tr>
+                    `;
+                }
             } catch (error) {
-                document.getElementById('getUserDevicesResult').textContent = `Ошибка: ${error.message}`;
+                console.error('Ошибка при получении устройств пользователя:', error);
+                document.getElementById('userDevicesTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="3" style="color: red;">Ошибка при загрузке данных: ${error.message}</td>
+                    </tr>
+                `;
             }
         }
 
@@ -672,4 +801,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
